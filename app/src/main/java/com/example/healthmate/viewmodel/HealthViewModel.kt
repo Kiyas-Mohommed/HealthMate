@@ -11,6 +11,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -35,10 +38,14 @@ class HealthViewModel(application: Application) : AndroidViewModel(application) 
     private val _searchQuery = MutableStateFlow("")
     val searchQuery: StateFlow<String> = _searchQuery.asStateFlow()
 
-    // list of records (all, or filtered by the search text)
+    // one time messages (success feedback)
+    private val _messages = MutableSharedFlow<String>()
+    val messages: SharedFlow<String> = _messages.asSharedFlow()
+
+    // list of records (all)
     val records: StateFlow<List<HealthRecord>>
 
-    // today's totals for the Dashboard
+    // today totals for the Dashboard
     val todaySummary: StateFlow<DaySummary>
 
     init {
@@ -73,15 +80,24 @@ class HealthViewModel(application: Application) : AndroidViewModel(application) 
     }
 
     fun addRecord(record: HealthRecord) {
-        viewModelScope.launch { repository.add(record) }
+        viewModelScope.launch {
+            repository.add(record)
+            _messages.emit("Record added successfully")
+        }
     }
 
     fun updateRecord(record: HealthRecord) {
-        viewModelScope.launch { repository.update(record) }
+        viewModelScope.launch {
+            repository.update(record)
+            _messages.emit("Record updated successfully")
+        }
     }
 
     fun deleteRecord(record: HealthRecord) {
-        viewModelScope.launch { repository.delete(record) }
+        viewModelScope.launch {
+            repository.delete(record)
+            _messages.emit("Record deleted successfully")
+        }
     }
 
     suspend fun getRecord(id: Int): HealthRecord? = repository.getById(id)
