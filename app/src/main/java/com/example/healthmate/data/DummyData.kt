@@ -11,7 +11,7 @@ object DummyData {
         HealthRecord(date = "2026-10-31", steps = 5600, calories = 280, water = 1900)
     )
 
-    // Adds the sample records only if the table is empty
+    // sample records only if the table is empty
     suspend fun seedIfEmpty(dao: HealthRecordDao) {
         if (dao.getCount() == 0) {
             dao.insertAll(records)
