@@ -30,6 +30,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
@@ -50,25 +51,27 @@ fun AddEditScreen(
 ) {
     val isEdit = recordId != null
 
-    var date by remember { mutableStateOf(viewModel.todayDate()) }
-    var steps by remember { mutableStateOf("") }
-    var calories by remember { mutableStateOf("") }
-    var water by remember { mutableStateOf("") }
+    var date by rememberSaveable { mutableStateOf(viewModel.todayDate()) }
+    var steps by rememberSaveable { mutableStateOf("") }
+    var calories by rememberSaveable { mutableStateOf("") }
+    var water by rememberSaveable { mutableStateOf("") }
 
-    var stepsError by remember { mutableStateOf<String?>(null) }
-    var caloriesError by remember { mutableStateOf<String?>(null) }
-    var waterError by remember { mutableStateOf<String?>(null) }
-    var showDatePicker by remember { mutableStateOf(false) }
+    var stepsError by rememberSaveable { mutableStateOf<String?>(null) }
+    var caloriesError by rememberSaveable { mutableStateOf<String?>(null) }
+    var waterError by rememberSaveable { mutableStateOf<String?>(null) }
+    var showDatePicker by rememberSaveable { mutableStateOf(false) }
+    var loaded by rememberSaveable { mutableStateOf(false) }
 
     // edit mode: load the existing record once and fill the fields
     LaunchedEffect(recordId) {
-        if (recordId != null) {
+        if (recordId != null && !loaded) {
             viewModel.getRecord(recordId)?.let { record ->
                 date = record.date
                 steps = record.steps.toString()
                 calories = record.calories.toString()
                 water = record.water.toString()
             }
+            loaded = true
         }
     }
 
